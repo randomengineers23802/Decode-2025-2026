@@ -15,7 +15,7 @@ public class Belt extends DcMotorImplEx {
     private Belt(DcMotorImplEx baseMotor) {
         super(baseMotor.getController(), baseMotor.getPortNumber(), baseMotor.getDirection());
         PIDFCoefficients beltPIDF = new PIDFCoefficients(0.0, 0.0, 0.0, 12.7);
-        this.setDirection(DcMotor.Direction.REVERSE);
+        this.setDirection(DcMotor.Direction.FORWARD);
         this.setMode(RunMode.RUN_USING_ENCODER);
         this.setPIDFCoefficients(RunMode.RUN_USING_ENCODER, beltPIDF);
     }
