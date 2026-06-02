@@ -22,7 +22,7 @@ public class flywheelTuner extends OpMode {
     private Pose currentPose;
     private robotControl robot;
     private final Pose startPose = new Pose(8.90625, 8.5625, Math.toRadians(90));
-    public static double flyWheelTicks = 0;
+    public double flyWheelTicks = 0;
     public static double hoodPosition = 0;
     public static double stopperPosition = 0;
 

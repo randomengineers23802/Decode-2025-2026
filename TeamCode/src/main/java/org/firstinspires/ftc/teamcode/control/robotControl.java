@@ -59,11 +59,10 @@ public class robotControl {
         this.follower = follower;
         this.gamepad1 = gamepad1;
         Shooter1 = hardwareMap.get(DcMotorEx.class, "Shooter1");
-        Shooter1.setDirection(DcMotorEx.Direction.REVERSE);
         Shooter1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         Shooter1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterPIDF);
         Shooter2 = hardwareMap.get(DcMotorEx.class, "Shooter2");
-        Shooter2.setDirection(DcMotorEx.Direction.FORWARD);
+        Shooter2.setDirection(DcMotorEx.Direction.REVERSE);
         Shooter2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         Shooter2.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterPIDF);
         intake = hardwareMap.get(DcMotor.class, "intake");
