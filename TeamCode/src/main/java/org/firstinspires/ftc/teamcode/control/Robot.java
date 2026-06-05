@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.control;
 
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.sequential;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Vector;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
@@ -13,7 +16,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.function.Supplier;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -24,7 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Kickstand;
 import org.firstinspires.ftc.teamcode.subsystems.Light;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-public class RobotControl {
+public class Robot {
     public Shooter shooter;
     public Intake intake;
     public Belt belt;
@@ -48,21 +50,21 @@ public class RobotControl {
 
     PIDFCoefficients aimPIDF = new PIDFCoefficients(1.2, 0.0, 0.1, 0.02); //may need to increase for shooting on the move
 
-    public RobotControl(HardwareMap hardwareMap, Follower follower) {
+    public Robot(HardwareMap hardwareMap, Follower follower) {
         this.follower = follower;
-        this.shooter = new Shooter(hardwareMap);
-        this.intake = new Intake(hardwareMap);
-        this.belt = new Belt(hardwareMap);
-        this.blueBoi = new BlueBoi(hardwareMap);
-        this.kickstand = new Kickstand(hardwareMap);
-        this.light = new Light(hardwareMap);
+        shooter = new Shooter(hardwareMap);
+        intake = new Intake(hardwareMap);
+        belt = new Belt(hardwareMap);
+        blueBoi = new BlueBoi(hardwareMap);
+        kickstand = new Kickstand(hardwareMap);
+        light = new Light(hardwareMap);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
         limelight.start();
         timer.reset();
     }
 
-    public ShotParameters updateShooting() {
+    public ShotParameters updateShotParameters() {
         Pose currentPose = follower.getPose();
         ShotParameters shotParameters = calculateShotVectorAndTurret(currentPose);
 
@@ -87,17 +89,12 @@ public class RobotControl {
         }
     }
 
-    public void setShooterVelocity(String range) {
-        double targetVelocity = 0;
-        switch (range) {
-            case "close":
-                targetVelocity = 1100;
-                break;
-            case "far":
-                targetVelocity = 1180;
-                break;
-        }
-        shooter.setVelocity(targetVelocity);
+    public Command shoot() {
+        return sequential(
+                blueBoi.open,
+                waitMs(1000),
+                blueBoi.close
+        );
     }
 
 //    public void relocalize() {

@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static com.pedropathing.ivy.commands.Commands.instant;
+
+import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImpl;
@@ -12,9 +15,12 @@ public class BlueBoi extends ServoImpl {
 
     private BlueBoi(ServoImpl baseServo) {
         super(baseServo.getController(), baseServo.getPortNumber());
-        this.setPosition(0.65);
+        setPosition(0.65);
     }
 
-    public void open() { this.setPosition(1.0); }
-    public void close() { this.setPosition(0.65); }
+    public void open() { setPosition(1.0); }
+    public void close() { setPosition(0.65); }
+
+    public Command open = instant(() -> setPosition(1.0)).requiring(this);
+    public Command close = instant(() -> setPosition(0.65)).requiring(this);
 }

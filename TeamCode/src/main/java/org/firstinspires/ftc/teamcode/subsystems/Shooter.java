@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static com.pedropathing.ivy.commands.Commands.instant;
+
+import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -21,20 +24,6 @@ public class Shooter {
         shooterR.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterRPIDF);
     }
 
-    public void setVelocity(String range) {
-        double targetVelocity = 0;
-        switch (range) {
-            case "close":
-                targetVelocity = 1100;
-                break;
-            case "far":
-                targetVelocity = 1180;
-                break;
-        }
-        shooterL.setVelocity(targetVelocity);
-        shooterR.setVelocity(targetVelocity);
-    }
-
     public void setVelocity(double ticks) {
         shooterL.setVelocity(ticks);
         shooterR.setVelocity(ticks);
@@ -44,4 +33,10 @@ public class Shooter {
         shooterL.setPower(0);
         shooterR.setPower(0);
     }
+
+    public Command setVelocityCommand(double ticks) {
+        return instant(() -> setVelocity(ticks)).requiring(this);
+    }
+
+    public Command off = instant(this::off).requiring(this);
 }

@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static com.pedropathing.ivy.commands.Commands.instant;
+
+import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,12 +18,15 @@ public class Belt extends DcMotorImplEx {
     private Belt(DcMotorImplEx baseMotor) {
         super(baseMotor.getController(), baseMotor.getPortNumber(), baseMotor.getDirection());
         PIDFCoefficients beltPIDF = new PIDFCoefficients(0.0, 0.0, 0.0, 12.7);
-        this.setDirection(DcMotor.Direction.FORWARD);
-        this.setMode(RunMode.RUN_USING_ENCODER);
-        this.setPIDFCoefficients(RunMode.RUN_USING_ENCODER, beltPIDF);
+        setDirection(DcMotor.Direction.FORWARD);
+        setMode(RunMode.RUN_USING_ENCODER);
+        setPIDFCoefficients(RunMode.RUN_USING_ENCODER, beltPIDF);
     }
 
-    public void onShoot() { this.setVelocity(1600); }
-    public void onIntake() { this.setVelocity(2600); }
-    public void off() { this.setPower(0.0); }
+    public void onShoot() { setVelocity(1600); }
+    public void onIntake() { setVelocity(2600); }
+    public void off() { setPower(0.0); }
+    public Command onShoot = instant(() -> setVelocity(1600)).requiring(this);
+    public Command onIntake = instant(() -> setVelocity(2600)).requiring(this);
+    public Command off = instant(() -> setVelocity(0)).requiring(this);
 }

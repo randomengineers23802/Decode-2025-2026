@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.opModes.teleOp;
 
+import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.base.RobotOpMode;
 import org.firstinspires.ftc.teamcode.control.passthrough;
@@ -9,7 +14,7 @@ import org.firstinspires.ftc.teamcode.control.passthrough;
 @TeleOp
 public class teleOp extends RobotOpMode {
     private boolean shooting = false;
-    private boolean endgame;
+    private boolean endgame = false;
     private boolean prevRightTrigger = false;
     private boolean slowMode = false;
     private final double slowModeMultiplier = 0.25;
@@ -62,14 +67,10 @@ public class teleOp extends RobotOpMode {
         boolean rightTriggerWasPressed = rightTriggerPressed && !prevRightTrigger;
 
         if (rightTriggerWasPressed && !shooting) {
-            shootTimer.reset();
-            shooting = true;
+            schedule(Shoot());
         }
 
         prevRightTrigger = rightTriggerPressed;
-
-        if (shooting)
-            Shoot();
 
         if (gamepad1.bWasPressed()) {
             shooting = false;
@@ -78,23 +79,27 @@ public class teleOp extends RobotOpMode {
         }
 
         if (gamepad1.xWasPressed() && follower.getVelocity().getMagnitude() < 1.5) {
-            robot.relocalize();
+            schedule(instant(robot::relocalize));
         }
 
         if (gamepad1.yWasPressed()) {
-            follower.followPath(robot.endgamePark.get());
-            robot.shooter.off();
-            slowMode = true;
-            endgame = true;
+            if (endgame) {
+                follower.startTeleopDrive();
+                slowMode = false;
+            }
+            else {
+                follower.followPath(robot.endgamePark.get());
+                robot.shooter.off();
+                slowMode = true;
+            }
+            endgame = !endgame;
         }
 
         if (gamepad1.dpadDownWasPressed()) {
-            robot.kickstand.lower();
-            robot.light.setColor(0.444);
+            schedule(robot.kickstand.lower, robot.light.setColorCommand(0.444));
         }
         else if (gamepad1.dpadUpWasPressed()) {
-            robot.kickstand.raise();
-            robot.light.setColor(1.0);
+            schedule(robot.kickstand.raise, robot.light.setColorCommand(1.0));
         }
 
         if (gamepad1.leftBumperWasPressed()) {
@@ -102,15 +107,13 @@ public class teleOp extends RobotOpMode {
         }
     }
 
-    private void Shoot() {
-        robot.belt.onShoot();
-        robot.intake.on();
-        double t = shootTimer.seconds();
-        if (t <= 1.0)
-            robot.blueBoi.open();
-        else {
-            robot.blueBoi.close();
-            shooting = false;
-        }
+    private Command Shoot() {
+        return sequential(
+                instant(() -> shooting = true),
+                robot.belt.onShoot,
+                robot.intake.on,
+                robot.shoot(),
+                instant(() -> shooting = false)
+        );
     }
 }

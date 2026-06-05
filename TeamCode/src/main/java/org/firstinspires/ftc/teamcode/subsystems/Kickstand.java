@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
+import static com.pedropathing.ivy.commands.Commands.instant;
+
+import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -26,4 +28,16 @@ public class Kickstand {
         kickstand2.setPosition(0.44);
         kickstand3.setPosition(0.58);
     }
+
+    public Command raise = instant(() -> {
+        kickstand1.setPosition(0.16);
+        kickstand2.setPosition(0.86);
+        kickstand3.setPosition(0.16);
+    }).requiring(this);
+
+    public Command lower = instant(() -> {
+        kickstand1.setPosition(0.58);
+        kickstand2.setPosition(0.44);
+        kickstand3.setPosition(0.58);
+    }).requiring(this);
 }
