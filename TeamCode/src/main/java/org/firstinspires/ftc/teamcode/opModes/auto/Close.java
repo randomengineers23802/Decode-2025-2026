@@ -27,27 +27,6 @@ public abstract class Close extends AutoOpMode {
         );
     }
 
-//    @Override
-//    protected Command autoRoutine() {
-//        return sequential(
-//                follow(Path1),
-//                shoot(),
-//                fastFollow(Path2),
-//                follow(Path3),
-//                shoot(),
-//                timeFollow(Path4, 4),
-//                follow(Path5),
-//                shoot(),
-//                timeFollow(Path6, 4),
-//                follow(Path7),
-//                shoot(),
-//                fastFollow(Path8),
-//                follow(Path9),
-//                shoot(),
-//                follow(Path10)
-//        );
-//    }
-
     @Override
     protected Command autoRoutine() {
         return sequential(
@@ -56,12 +35,10 @@ public abstract class Close extends AutoOpMode {
                 fastFollow(Path2),
                 follow(Path3),
                 shoot(),
-                stuckFollow(Path4, 0.3),
-                waitMs(1000),
+                timeFollow(Path4, 4),
                 follow(Path5),
                 shoot(),
-                stuckFollow(Path6, 0.3),
-                waitMs(1000),
+                timeFollow(Path6, 4),
                 follow(Path7),
                 shoot(),
                 fastFollow(Path8),
