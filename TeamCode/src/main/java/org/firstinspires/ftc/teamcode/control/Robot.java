@@ -35,6 +35,7 @@ public class Robot {
     public Limelight3A limelight;
     private Follower follower;
     private Pose goalTarget;
+    private Pose prismTarget;
     public Supplier<PathChain> endgamePark;
     private ElapsedTime timer = new ElapsedTime();
     public Light light;
@@ -64,9 +65,34 @@ public class Robot {
         timer.reset();
     }
 
+    public ShotParameters updateShotParameters(Pose target) {
+        Pose currentPose = follower.getPose();
+        ShotParameters shotParameters = calculateShotVectorAndTurret(currentPose, target);
+
+        double error = shotParameters.heading - currentPose.getHeading();
+        while (error > Math.PI) error -= 2 * Math.PI;
+        while (error < -Math.PI) error += 2 * Math.PI;
+        double dt = timer.seconds();
+        timer.reset();
+
+        double derivative = 0;
+        if (dt > 0.001) {
+            derivative = (error - lastError) / dt;
+            lastError = error;
+        }
+        double feedForward = Math.signum(error) * aimPIDF.f;
+        double aimPower = (error * aimPIDF.p) + (derivative * aimPIDF.d) + feedForward;
+
+        if (Math.abs(error) < Math.toRadians(1.0))
+            return new ShotParameters(shotParameters.flywheelTicks, 0);
+        else {
+            return new ShotParameters(shotParameters.flywheelTicks, Range.clip(aimPower, -0.8, 0.8));
+        }
+    }
+
     public ShotParameters updateShotParameters() {
         Pose currentPose = follower.getPose();
-        ShotParameters shotParameters = calculateShotVectorAndTurret(currentPose);
+        ShotParameters shotParameters = calculateShotVectorAndTurret(currentPose, goalTarget);
 
         double error = shotParameters.heading - currentPose.getHeading();
         while (error > Math.PI) error -= 2 * Math.PI;
@@ -94,7 +120,7 @@ public class Robot {
                 blueBoi.open,
                 waitMs(1000),
                 blueBoi.close
-        );
+        ).setEnd(interrupted -> blueBoi.close());
     }
 
 //    public void relocalize() {
@@ -169,7 +195,8 @@ public class Robot {
     public void setAlliance(Alliance alliance) {
         switch (alliance) {
             case BLUE:
-                goalTarget = new Pose(4, 140);
+                goalTarget = new Pose(4, 188);
+                prismTarget = new Pose(92, 188);
                 endgamePark = () -> follower.pathBuilder()
                         .addPath(new Path(new BezierLine(follower::getPose, new Pose(112, 29))))
                         .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), 0.6))
@@ -177,7 +204,8 @@ public class Robot {
                 teleOpHeadingOffset = Math.toRadians(0);
                 break;
             case RED:
-                goalTarget = new Pose(140, 140);
+                goalTarget = new Pose(188, 188);
+                prismTarget = new Pose(100, 188);
                 endgamePark = () -> follower.pathBuilder()
                         .addPath(new Path(new BezierLine(follower::getPose, new Pose(32, 29))))
                         .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), 0.6))
@@ -188,9 +216,19 @@ public class Robot {
         passthrough.alliance = alliance;
     }
 
-    private Vector robotToGoalVector(Pose currentPose) {
-        double dx = goalTarget.getX() - currentPose.getX();
-        double dy = goalTarget.getY() - currentPose.getY();
+    public Pose target(Target target) {
+        switch (target) {
+            case PRISM:
+                return prismTarget;
+            case GOAL:
+            default:
+                return goalTarget;
+        }
+    }
+    
+    private Vector robotToGoalVector(Pose currentPose, Pose target) {
+        double dx = target.getX() - currentPose.getX();
+        double dy = target.getY() - currentPose.getY();
         return new Vector(new Pose(dx, dy));
     }
 
@@ -198,8 +236,8 @@ public class Robot {
         return Range.clip((0.024369 * velocity * velocity) - (8.21129 * velocity) + 1632.4453, flywheelMinSpeed, flywheelMaxSpeed);
     }
 
-    public ShotParameters calculateShotVectorAndTurret(Pose currentPose) {
-        Vector robotToGoalVector = robotToGoalVector(currentPose);
+    public ShotParameters calculateShotVectorAndTurret(Pose currentPose, Pose target) {
+        Vector robotToGoalVector = robotToGoalVector(currentPose, target);
         double g = 32.174 * 12;
         double x = robotToGoalVector.getMagnitude() - passthroughPointRadius;
         double y = scoreHeight;

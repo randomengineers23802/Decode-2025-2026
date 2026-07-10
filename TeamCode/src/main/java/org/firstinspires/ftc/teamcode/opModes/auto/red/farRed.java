@@ -6,7 +6,7 @@
  import com.pedropathing.geometry.Pose;
  import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  import org.firstinspires.ftc.teamcode.control.Alliance;
- import org.firstinspires.ftc.teamcode.opModes.auto.Far;
+ import org.firstinspires.ftc.teamcode.opModes.auto.base.Far;
 
  @Autonomous
  @Configurable
@@ -92,30 +92,6 @@
                                  new Pose(86.000, 15.000)
                          )
                  ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(250))
-                 .build();
-
-         Path11 = follower.pathBuilder().addPath(
-                         new BezierLine(
-                                 new Pose(86.000, 15.000),
-                                 new Pose(135.000, 12.000)
-                         )
-                 ).setLinearHeadingInterpolation(Math.toRadians(250), Math.toRadians(0), 0.4)
-                 .build();
-
-         Path12 = follower.pathBuilder().addPath(
-                         new BezierLine(
-                                 new Pose(135.000, 12.000),
-                                 new Pose(86.000, 15.000)
-                         )
-                 ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(250))
-                 .build();
-
-         Path13 = follower.pathBuilder().addPath(
-                         new BezierLine(
-                                 new Pose(86.000, 15.000),
-                                 new Pose(108.000, 15.000)
-                         )
-                 ).setLinearHeadingInterpolation(Math.toRadians(250), Math.toRadians(0))
                  .build();
      }
 

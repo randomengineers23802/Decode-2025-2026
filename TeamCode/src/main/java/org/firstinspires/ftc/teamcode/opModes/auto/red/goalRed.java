@@ -6,11 +6,11 @@
  import com.pedropathing.geometry.Pose;
  import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  import org.firstinspires.ftc.teamcode.control.Alliance;
- import org.firstinspires.ftc.teamcode.opModes.auto.Close;
+ import org.firstinspires.ftc.teamcode.opModes.auto.base.Goal;
 
  @Autonomous
  @Configurable
- public class closeRed extends Close {
+ public class goalRed extends Goal {
      @Override
      protected void buildPaths() {
          Path1 = follower.pathBuilder().addPath(

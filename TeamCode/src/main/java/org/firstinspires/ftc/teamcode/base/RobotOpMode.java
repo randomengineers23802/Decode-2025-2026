@@ -5,7 +5,6 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.control.Robot;
 import org.firstinspires.ftc.teamcode.control.ShotParameters;
 import org.firstinspires.ftc.teamcode.control.passthrough;
@@ -15,7 +14,6 @@ public abstract class RobotOpMode extends OpMode {
     protected Robot robot;
     protected Follower follower;
     protected TelemetryManager panelsTelemetry;
-    protected ElapsedTime shootTimer = new ElapsedTime();
     protected ShotParameters shotParameters;
 
     @Override

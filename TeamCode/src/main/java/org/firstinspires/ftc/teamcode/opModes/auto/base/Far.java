@@ -1,16 +1,14 @@
-package org.firstinspires.ftc.teamcode.opModes.auto;
+package org.firstinspires.ftc.teamcode.opModes.auto.base;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.base.AutoOpMode;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
-@Autonomous
 @Configurable
 public abstract class Far extends AutoOpMode {
-    protected PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13;
+    protected PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10;
 
     @Override
     public void loop() {
@@ -23,22 +21,19 @@ public abstract class Far extends AutoOpMode {
         return sequential(
                 follow(Path1),
                 robot.shoot(),
-                follow(Path2),
+                fastFollow(Path2),
                 follow(Path3),
                 robot.shoot(),
                 fastFollow(Path4),
-                fastFollow(Path5),
-                timeFollow(Path6, 1.3),
-                timeFollow(Path7, 1.3),
-                follow(Path8),
+                follow(Path5),
                 robot.shoot(),
-                timeFollow(Path9, 2.3),
-                follow(Path10),
+                fastFollow(Path6),
+                follow(Path7),
                 robot.shoot(),
-                timeFollow(Path11, 2.3),
-                follow(Path12),
+                fastFollow(Path8),
+                follow(Path9),
                 robot.shoot(),
-                follow(Path13)
+                follow(Path10)
         );
     }
 }

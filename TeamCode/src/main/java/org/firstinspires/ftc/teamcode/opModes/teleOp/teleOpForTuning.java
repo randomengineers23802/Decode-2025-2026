@@ -3,23 +3,26 @@ package org.firstinspires.ftc.teamcode.opModes.teleOp;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.groups.Groups.sequential;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import org.firstinspires.ftc.teamcode.base.RobotOpMode;
 import org.firstinspires.ftc.teamcode.control.Target;
 import org.firstinspires.ftc.teamcode.control.passthrough;
 
 @Configurable
 @TeleOp
-public class teleOp extends RobotOpMode {
+public class teleOpForTuning extends RobotOpMode {
     private boolean shooting = false;
     private boolean endgame = false;
     private boolean prevRightTrigger = false;
     private boolean slowMode = false;
     private final double slowModeMultiplier = 0.25;
     private Target currentTarget = Target.GOAL;
+    private int flywheelTargetTicks = 1000;
 
     @Override
     public void init() {
@@ -48,10 +51,18 @@ public class teleOp extends RobotOpMode {
         follower.update();
         shotParameters = robot.updateShotParameters(robot.target(currentTarget));
         telemetry.addData("Target", currentTarget);
+        telemetry.addData("calculated flywheel velocity in/sec", robot.flywheelInchesPerSec);
+        telemetry.addData("current shooterL ticks", robot.shooter.shooterL.getVelocity());
+        telemetry.addData("current shooterR ticks", robot.shooter.shooterR.getVelocity());
+        telemetry.addData("flywheel target ticks determined by controller dpad", flywheelTargetTicks);
         telemetry.update();
         Scheduler.execute();
 
-        if (!endgame) { robot.shooter.setVelocity(shotParameters.flywheelTicks + 20); }
+        if (gamepad1.dpadUpWasPressed())
+            flywheelTargetTicks += 10;
+        else if (gamepad1.dpadDownWasPressed())
+            flywheelTargetTicks -= 10;
+        robot.shooter.setVelocity(flywheelTargetTicks);
 
         double speedMultiplier = slowMode ? slowModeMultiplier : 1.0;
         double x = gamepad1.left_stick_x * speedMultiplier;
@@ -79,7 +90,7 @@ public class teleOp extends RobotOpMode {
 
         prevRightTrigger = rightTriggerPressed;
 
-        if (gamepad1.dpadLeftWasPressed()) {
+        if (gamepad1.aWasPressed()) {
             currentTarget = (currentTarget == Target.GOAL) ? Target.PRISM : Target.GOAL;
         }
 
@@ -115,7 +126,6 @@ public class teleOp extends RobotOpMode {
 
         if (gamepad1.leftBumperWasPressed()) {
             slowMode = !slowMode;
-            //Shoot().isScheduled()
         }
     }
 
