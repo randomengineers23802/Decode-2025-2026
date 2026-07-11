@@ -36,6 +36,7 @@ public class Robot {
     private Follower follower;
     private Pose goalTarget;
     private Pose prismTarget;
+    private double gateHeading;
     public Supplier<PathChain> endgamePark;
     private ElapsedTime timer = new ElapsedTime();
     public Light light;
@@ -68,8 +69,11 @@ public class Robot {
     public ShotParameters updateShotParameters(Pose target) {
         Pose currentPose = follower.getPose();
         ShotParameters shotParameters = calculateShotVectorAndTurret(currentPose, target);
+        return new ShotParameters(shotParameters.flywheelTicks, aimPower(shotParameters.heading, currentPose));
+    }
 
-        double error = shotParameters.heading - currentPose.getHeading();
+    public double aimPower(double headingTarget, Pose currentPose) {
+        double error = headingTarget - currentPose.getHeading();
         while (error > Math.PI) error -= 2 * Math.PI;
         while (error < -Math.PI) error += 2 * Math.PI;
         double dt = timer.seconds();
@@ -84,10 +88,9 @@ public class Robot {
         double aimPower = (error * aimPIDF.p) + (derivative * aimPIDF.d) + feedForward;
 
         if (Math.abs(error) < Math.toRadians(1.0))
-            return new ShotParameters(shotParameters.flywheelTicks, 0);
-        else {
-            return new ShotParameters(shotParameters.flywheelTicks, Range.clip(aimPower, -0.8, 0.8));
-        }
+            return 0.0;
+        else
+            return Range.clip(aimPower, -0.8, 0.8);
     }
 
     public ShotParameters updateShotParameters() {
@@ -202,6 +205,7 @@ public class Robot {
                         .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), 0.6))
                         .build();
                 teleOpHeadingOffset = Math.toRadians(0);
+                gateHeading = Math.toRadians(135);
                 break;
             case RED:
                 goalTarget = new Pose(188, 188);
@@ -211,12 +215,13 @@ public class Robot {
                         .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), 0.6))
                         .build();
                 teleOpHeadingOffset = Math.toRadians(180);
+                gateHeading = Math.toRadians(45);
                 break;
         }
         passthrough.alliance = alliance;
     }
 
-    public Pose target(Target target) {
+    public Pose getTargetPose(Target target) {
         switch (target) {
             case PRISM:
                 return prismTarget;
@@ -225,7 +230,10 @@ public class Robot {
                 return goalTarget;
         }
     }
-    
+
+    public double getGateHeading() {
+        return gateHeading;
+    }
     private Vector robotToGoalVector(Pose currentPose, Pose target) {
         double dx = target.getX() - currentPose.getX();
         double dy = target.getY() - currentPose.getY();

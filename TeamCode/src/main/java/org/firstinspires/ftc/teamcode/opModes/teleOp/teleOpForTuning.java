@@ -49,7 +49,7 @@ public class teleOpForTuning extends RobotOpMode {
     @Override
     public void loop() {
         follower.update();
-        shotParameters = robot.updateShotParameters(robot.target(currentTarget));
+        shotParameters = robot.updateShotParameters(robot.getTargetPose(currentTarget));
         telemetry.addData("Target", currentTarget);
         telemetry.addData("calculated flywheel velocity in/sec", robot.flywheelInchesPerSec);
         telemetry.addData("current shooterL ticks", robot.shooter.shooterL.getVelocity());
@@ -117,16 +117,16 @@ public class teleOpForTuning extends RobotOpMode {
             endgame = !endgame;
         }
 
-        if (gamepad1.dpadDownWasPressed()) {
-            schedule(robot.kickstand.lower, robot.light.setColorCommand(0.444));
-        }
-        else if (gamepad1.dpadUpWasPressed()) {
-            schedule(robot.kickstand.raise, robot.light.setColorCommand(1.0));
-        }
+//        if (gamepad1.dpadDownWasPressed()) {
+//            schedule(robot.kickstand.lower, robot.light.setColorCommand(0.444));
+//        }
+//        else if (gamepad1.dpadUpWasPressed()) {
+//            schedule(robot.kickstand.raise, robot.light.setColorCommand(1.0));
+//        }
 
-        if (gamepad1.leftBumperWasPressed()) {
-            slowMode = !slowMode;
-        }
+//        if (gamepad1.leftBumperWasPressed()) {
+//            slowMode = !slowMode;
+//        }
     }
 
     private Command Shoot() {

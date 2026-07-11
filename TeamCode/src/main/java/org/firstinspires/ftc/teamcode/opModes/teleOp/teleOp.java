@@ -46,7 +46,7 @@ public class teleOp extends RobotOpMode {
     @Override
     public void loop() {
         follower.update();
-        shotParameters = robot.updateShotParameters(robot.target(currentTarget));
+        shotParameters = robot.updateShotParameters(robot.getTargetPose(currentTarget));
         telemetry.addData("Target", currentTarget);
         telemetry.update();
         Scheduler.execute();
@@ -56,7 +56,15 @@ public class teleOp extends RobotOpMode {
         double speedMultiplier = slowMode ? slowModeMultiplier : 1.0;
         double x = gamepad1.left_stick_x * speedMultiplier;
         double y = gamepad1.left_stick_y * speedMultiplier;
-        double turn = (gamepad1.left_trigger > 0.2) ? shotParameters.heading : -gamepad1.right_stick_x * speedMultiplier;
+
+        double turn;
+        if (gamepad1.left_trigger > 0.2)
+            turn = shotParameters.heading;
+        else if (gamepad1.left_bumper)
+            turn = robot.aimPower(robot.getGateHeading(), follower.getPose());
+        else
+            turn = -gamepad1.right_stick_x * speedMultiplier;
+
         follower.setTeleOpDrive(y, x, turn, false, robot.teleOpHeadingOffset);
 
         if (!shooting) {
@@ -79,7 +87,7 @@ public class teleOp extends RobotOpMode {
 
         prevRightTrigger = rightTriggerPressed;
 
-        if (gamepad1.dpadLeftWasPressed()) {
+        if (gamepad1.aWasPressed()) {
             currentTarget = (currentTarget == Target.GOAL) ? Target.PRISM : Target.GOAL;
         }
 
@@ -113,9 +121,12 @@ public class teleOp extends RobotOpMode {
             schedule(robot.kickstand.raise, robot.light.setColorCommand(1.0));
         }
 
+//        if (gamepad1.leftBumperWasPressed()) {
+//            slowMode = !slowMode;
+//        }
+
         if (gamepad1.leftBumperWasPressed()) {
-            slowMode = !slowMode;
-            //Shoot().isScheduled()
+
         }
     }
 
