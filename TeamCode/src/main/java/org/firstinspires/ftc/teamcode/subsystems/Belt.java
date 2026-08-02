@@ -27,6 +27,7 @@ public class Belt extends DcMotorImplEx {
     public void onIntake() { setVelocity(2600); }
     public void off() { setPower(0.0); }
     public Command onShoot = instant(() -> setVelocity(1600)).requiring(this);
+    public Command onFastShoot = instant(() -> setVelocity(2200)).requiring(this);
     public Command onIntake = instant(() -> setVelocity(2600)).requiring(this);
     public Command off = instant(() -> setVelocity(0)).requiring(this);
 }

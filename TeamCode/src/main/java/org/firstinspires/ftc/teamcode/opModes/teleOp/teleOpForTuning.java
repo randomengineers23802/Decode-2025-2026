@@ -56,6 +56,9 @@ public class teleOpForTuning extends RobotOpMode {
         telemetry.addData("current shooterR ticks", robot.shooter.shooterR.getVelocity());
         telemetry.addData("flywheel target ticks determined by controller dpad", flywheelTargetTicks);
         telemetry.update();
+        panelsTelemetry.addData("ShooterL velocity", robot.shooter.shooterL.getVelocity());
+        panelsTelemetry.addData("ShooterR velocity", robot.shooter.shooterR.getVelocity());
+        panelsTelemetry.update();
         Scheduler.execute();
 
         if (gamepad1.dpadUpWasPressed())

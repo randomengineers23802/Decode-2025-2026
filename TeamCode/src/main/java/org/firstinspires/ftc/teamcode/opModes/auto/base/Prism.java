@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.opModes.auto.base;
 
-import static com.pedropathing.ivy.groups.Groups.sequential;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.base.AutoOpMode;
+
+import static com.pedropathing.ivy.groups.Groups.sequential;
 
 @Configurable
 public abstract class Prism extends AutoOpMode {
@@ -13,15 +14,15 @@ public abstract class Prism extends AutoOpMode {
     @Override
     public void loop() {
         super.loop();
-        robot.shooter.setVelocity(shotParameters.flywheelTicks + 10);
+        robot.shooter.setVelocity(shotParameters.flywheelTicks);
     }
 
     @Override
     protected Command autoRoutine() {
         return sequential(
-                follow(Path1),
-                robot.shoot()//,
-                //follow(Path2)
+                step("Path 1", follow(Path1)),
+                step("Shoot", robot.shoot()),
+                step("Path 2", follow(Path2))
         );
     }
 }

@@ -25,18 +25,18 @@ public class goalBlue extends Goal {
                         new BezierCurve(
                                 new Pose(58.000, 128.000),
                                 new Pose(55.000, 107.000),
-                                new Pose(10.000, 106.000)
+                                new Pose(9.000, 106.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(316), Math.toRadians(200), 0.15)
+                ).setLinearHeadingInterpolation(Math.toRadians(316), Math.toRadians(180), 0.15)
                 .build();
 
         Path3 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                new Pose(10.000, 106.000),
+                                new Pose(9.000, 106.000),
                                 new Pose(39.000, 109.000),
                                 new Pose(58.000, 128.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(200), Math.toRadians(316))
+                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(316))
                 .build();
 
         Path4 = follower.pathBuilder().addPath(

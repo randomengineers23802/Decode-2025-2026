@@ -19,21 +19,21 @@ public class prismBlue extends Prism {
                                 new Pose(71.500, 176.000),
                                 new Pose(71.500, 128.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(216.5), Math.toRadians(325))
+                ).setLinearHeadingInterpolation(Math.toRadians(216.5), Math.toRadians(322))
                 .build();
 
         Path2 = follower.pathBuilder().addPath(
-                        new BezierCurve(
+                        new BezierLine(
                                 new Pose(71.500, 128.000),
                                 new Pose(71.500, 100.000)
                         )
-                ).setConstantHeadingInterpolation(325)
+                ).setConstantHeadingInterpolation(322)
                 .addPath(
-                        new BezierCurve(
+                        new BezierLine(
                                 new Pose(71.500, 100.000),
-                                new Pose(83.000, 100.000)
+                                new Pose(70.000, 80.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(325), Math.toRadians(180))
+                ).setConstantHeadingInterpolation(322)
                 .build();
     }
 

@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class Shooter {
     public DcMotorEx shooterL;
     public DcMotorEx shooterR;
-    PIDFCoefficients shooterLPIDF = new PIDFCoefficients(120.0, 0.0, 0.0, 13.1);
-    PIDFCoefficients shooterRPIDF = new PIDFCoefficients(120.0, 0.0, 0.0, 12.5);
+    PIDFCoefficients shooterLPIDF = new PIDFCoefficients(115.0, 0.0, 0.0, 13.0);
+    PIDFCoefficients shooterRPIDF = new PIDFCoefficients(115.0, 0.0, 0.0, 12.4);
 
     public Shooter(HardwareMap hardwareMap) {
         shooterL = hardwareMap.get(DcMotorEx.class, "shooterL");

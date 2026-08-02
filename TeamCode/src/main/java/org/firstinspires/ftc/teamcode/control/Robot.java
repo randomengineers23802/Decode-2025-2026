@@ -38,12 +38,15 @@ public class Robot {
     private Pose prismTarget;
     private double gateHeading;
     public Supplier<PathChain> endgamePark;
-    private ElapsedTime timer = new ElapsedTime();
+    private ElapsedTime timerShot = new ElapsedTime();
+    private ElapsedTime timerGate = new ElapsedTime();
     public Light light;
-    private double lastError = 0;
+    private double lastErrorShot = 0;
+    private double lastErrorGate = 0;
 
     private static final double flywheelMinSpeed = 940;
-    private static final double flywheelMaxSpeed = 1250;
+//    private static final double flywheelMaxSpeed = 1550;
+    private static final double flywheelMaxSpeed = 1440;
     private static final double scoreHeight = 26;
     private static final double passthroughPointRadius = 2;
 
@@ -63,26 +66,48 @@ public class Robot {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
         limelight.start();
-        timer.reset();
+        timerShot.reset();
+        timerGate.reset();
     }
 
     public ShotParameters updateShotParameters(Pose target) {
         Pose currentPose = follower.getPose();
         ShotParameters shotParameters = calculateShotVectorAndTurret(currentPose, target);
-        return new ShotParameters(shotParameters.flywheelTicks, aimPower(shotParameters.heading, currentPose));
-    }
 
-    public double aimPower(double headingTarget, Pose currentPose) {
-        double error = headingTarget - currentPose.getHeading();
+        double error = shotParameters.heading - currentPose.getHeading();
         while (error > Math.PI) error -= 2 * Math.PI;
         while (error < -Math.PI) error += 2 * Math.PI;
-        double dt = timer.seconds();
-        timer.reset();
+        double dt = timerShot.seconds();
+        timerShot.reset();
 
         double derivative = 0;
         if (dt > 0.001) {
-            derivative = (error - lastError) / dt;
-            lastError = error;
+            derivative = (error - lastErrorShot) / dt;
+            lastErrorShot = error;
+        }
+        double feedForward = Math.signum(error) * aimPIDF.f;
+        double aimPower = (error * aimPIDF.p) + (derivative * aimPIDF.d) + feedForward;
+
+        double finalPower;
+        if (Math.abs(error) < Math.toRadians(1.0))
+            finalPower = 0.0;
+        else
+            finalPower = Range.clip(aimPower, -1, 1);
+
+        return new ShotParameters(shotParameters.flywheelTicks, finalPower);
+    }
+
+    public double aimPower(double headingTarget, double currentHeading) {
+        double error = headingTarget - currentHeading;
+        while (error > Math.PI) error -= 2 * Math.PI;
+        while (error < -Math.PI) error += 2 * Math.PI;
+        double dt = timerGate.seconds();
+        timerGate.reset();
+
+        double derivative = 0;
+        if (dt > 0.001) {
+            derivative = (error - lastErrorGate) / dt;
+            lastErrorGate = error;
         }
         double feedForward = Math.signum(error) * aimPIDF.f;
         double aimPower = (error * aimPIDF.p) + (derivative * aimPIDF.d) + feedForward;
@@ -90,32 +115,11 @@ public class Robot {
         if (Math.abs(error) < Math.toRadians(1.0))
             return 0.0;
         else
-            return Range.clip(aimPower, -0.8, 0.8);
+            return Range.clip(aimPower, -1, 1);
     }
 
     public ShotParameters updateShotParameters() {
-        Pose currentPose = follower.getPose();
-        ShotParameters shotParameters = calculateShotVectorAndTurret(currentPose, goalTarget);
-
-        double error = shotParameters.heading - currentPose.getHeading();
-        while (error > Math.PI) error -= 2 * Math.PI;
-        while (error < -Math.PI) error += 2 * Math.PI;
-        double dt = timer.seconds();
-        timer.reset();
-
-        double derivative = 0;
-        if (dt > 0.001) {
-            derivative = (error - lastError) / dt;
-            lastError = error;
-        }
-        double feedForward = Math.signum(error) * aimPIDF.f;
-        double aimPower = (error * aimPIDF.p) + (derivative * aimPIDF.d) + feedForward;
-
-        if (Math.abs(error) < Math.toRadians(1.0))
-            return new ShotParameters(shotParameters.flywheelTicks, 0);
-        else {
-            return new ShotParameters(shotParameters.flywheelTicks, Range.clip(aimPower, -0.8, 0.8));
-        }
+        return updateShotParameters(goalTarget);
     }
 
     public Command shoot() {
@@ -198,24 +202,24 @@ public class Robot {
     public void setAlliance(Alliance alliance) {
         switch (alliance) {
             case BLUE:
-                goalTarget = new Pose(4, 188);
-                prismTarget = new Pose(92, 188);
+                goalTarget = new Pose(0, 188);
+                prismTarget = new Pose(96, 186);
                 endgamePark = () -> follower.pathBuilder()
                         .addPath(new Path(new BezierLine(follower::getPose, new Pose(112, 29))))
                         .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), 0.6))
                         .build();
                 teleOpHeadingOffset = Math.toRadians(0);
-                gateHeading = Math.toRadians(135);
+                gateHeading = Math.toRadians(148);
                 break;
             case RED:
-                goalTarget = new Pose(188, 188);
-                prismTarget = new Pose(100, 188);
+                goalTarget = new Pose(192, 188);
+                prismTarget = new Pose(96, 186);
                 endgamePark = () -> follower.pathBuilder()
                         .addPath(new Path(new BezierLine(follower::getPose, new Pose(32, 29))))
                         .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), 0.6))
                         .build();
                 teleOpHeadingOffset = Math.toRadians(180);
-                gateHeading = Math.toRadians(45);
+                gateHeading = Math.toRadians(32);
                 break;
         }
         passthrough.alliance = alliance;
@@ -241,7 +245,7 @@ public class Robot {
     }
 
     private static double getFlywheelTicksFromVelocity(double velocity) {
-        return Range.clip((0.024369 * velocity * velocity) - (8.21129 * velocity) + 1632.4453, flywheelMinSpeed, flywheelMaxSpeed);
+        return Range.clip((0.0202163 * velocity * velocity) - (5.99404 * velocity) + 1341.00214, flywheelMinSpeed, flywheelMaxSpeed);
     }
 
     public ShotParameters calculateShotVectorAndTurret(Pose currentPose, Pose target) {

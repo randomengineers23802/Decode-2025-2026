@@ -26,5 +26,5 @@ public class Intake extends DcMotorImpl {
         setPower(0.1);
     }
     public Command on = instant(() -> setPower(1.0)).requiring(this);
-    public Command off = instant(() -> setPower(0.1)).requiring(this);
+    public Command off = instant(() -> setPower(0.2)).requiring(this);
 }
